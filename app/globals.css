@@ -1,60 +1,60 @@
 @import "tailwindcss";
 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --background: #FAF7F4;
-  --foreground: #2C1A0E;
-  --gold: #C4763A;
-  --gold-light: #E8C49A;
-  --cream: #FAF7F4;
-  --cream-dark: #F0EAE2;
-  --font-serif: var(--font-playfair), Georgia, serif;
-  --font-sans: var(--font-lato), system-ui, sans-serif;
+  --ink:       #1C1410;
+  --gold:      #B8832A;
+  --gold-lt:   #E8C97A;
+  --cream:     #FBF8F3;
+  --parchment: #F2EBE0;
+  --muted:     #7A6A5A;
+  --border:    #DDD3C5;
+  --white:     #FFFFFF;
+  --font-serif: var(--font-cormorant), 'Georgia', serif;
+  --font-sans:  var(--font-outfit), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-lato);
-  --font-serif: var(--font-playfair);
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
+/* ── Cards hover ── */
 .categoria-card {
   background: white;
-  border: 1.5px solid var(--cream-dark);
+  border: 1.5px solid var(--border);
   border-radius: 16px;
   padding: 28px 20px;
   text-align: center;
   text-decoration: none;
-  color: var(--foreground);
+  color: var(--ink);
   display: block;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.categoria-card:hover {
+  border-color: var(--gold);
+  box-shadow: 0 4px 20px rgba(184,131,42,0.15);
+  transform: translateY(-3px);
 }
 
 .proveedor-card {
   background: white;
-  border: 1.5px solid var(--cream-dark);
+  border: 1.5px solid var(--border);
   border-radius: 16px;
   padding: 24px 28px;
   text-decoration: none;
-  color: var(--foreground);
+  color: var(--ink);
   display: block;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
-
 .proveedor-card:hover {
   border-color: var(--gold);
-  box-shadow: 0 4px 20px rgba(196,118,58,0.15);
+  box-shadow: 0 4px 20px rgba(184,131,42,0.15);
   transform: translateY(-2px);
-}
-
-.categoria-card:hover {
-  border-color: var(--gold);
-  box-shadow: 0 4px 20px rgba(196,118,58,0.15);
-  transform: translateY(-3px);
 }

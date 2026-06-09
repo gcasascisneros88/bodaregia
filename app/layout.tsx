@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Lato } from "next/font/google";
+import { Cormorant_Garamond, Outfit } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"],
 });
 
-const lato = Lato({
-  variable: "--font-lato",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
   title: "BodaRegia — Proveedores de bodas en Monterrey",
-  description: "Encuentra los mejores proveedores para tu boda en Monterrey y área metropolitana.",
+  description: "El ranking más honesto de proveedores nupciales de Nuevo León. Sin reseñas pagadas, sin publicidad disfrazada.",
 };
 
 export default function RootLayout({
@@ -25,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${playfair.variable} ${lato.variable} h-full`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es" className={`${cormorant.variable} ${outfit.variable}`}>
+      <body style={{ margin: 0 }}>{children}</body>
     </html>
   );
 }
