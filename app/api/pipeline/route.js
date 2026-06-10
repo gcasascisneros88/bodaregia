@@ -55,7 +55,7 @@ export async function POST(request) {
   const resumen = { procesados: 0, insertados: 0, sin_match: 0, errores: 0, detalles: [] }
 
   for (const item of comentarios) {
-    const { texto, fuente, url_origen, fecha_publicacion } = item
+    const { texto, fuente, url_origen, fecha_publicacion, proveedor_id: proveedorIdDirecto } = item
 
     if (!texto?.trim()) {
       resumen.errores++
@@ -82,43 +82,45 @@ export async function POST(request) {
       // 2. Analizar con Gemini
       const analisis = await analizarComentario(texto)
 
-      // 3. Buscar proveedor por similitud
-      let proveedor_id = null
+      // 3. Resolver proveedor_id — directo si viene en el payload, si no buscar por similitud
+      let proveedor_id = proveedorIdDirecto ?? null
 
-      if (analisis.proveedor) {
-        const { data: matches } = await supabaseAdmin.rpc('buscar_proveedor_similar', {
-          nombre_busqueda: analisis.proveedor,
-          umbral: 0.3,
-        })
+      if (!proveedor_id) {
+        if (analisis.proveedor) {
+          const { data: matches } = await supabaseAdmin.rpc('buscar_proveedor_similar', {
+            nombre_busqueda: analisis.proveedor,
+            umbral: 0.3,
+          })
 
-        if (matches?.length > 0) {
-          proveedor_id = matches[0].id
-        } else {
-          // 5. Crear proveedor provisional
-          const slug = slugify(analisis.proveedor)
-          const { data: nuevo } = await supabaseAdmin
-            .from('proveedores')
-            .insert({
-              nombre: analisis.proveedor,
-              slug: `${slug}-${hash.slice(0, 6)}`,
-              municipio: analisis.zona ?? null,
-              activo: false,
-              verificado: false,
-              plan: 'basico',
-            })
-            .select('id')
-            .single()
+          if (matches?.length > 0) {
+            proveedor_id = matches[0].id
+          } else {
+            // Crear proveedor provisional
+            const slug = slugify(analisis.proveedor)
+            const { data: nuevo } = await supabaseAdmin
+              .from('proveedores')
+              .insert({
+                nombre: analisis.proveedor,
+                slug: `${slug}-${hash.slice(0, 6)}`,
+                municipio: analisis.zona ?? null,
+                activo: false,
+                verificado: false,
+                plan: 'basico',
+              })
+              .select('id')
+              .single()
 
-          proveedor_id = nuevo?.id ?? null
-          resumen.sin_match++
-          resumen.detalles.push({ proveedor: analisis.proveedor, status: 'proveedor_provisional_creado' })
+            proveedor_id = nuevo?.id ?? null
+            resumen.sin_match++
+            resumen.detalles.push({ proveedor: analisis.proveedor, status: 'proveedor_provisional_creado' })
+          }
         }
       }
 
       // 4. Obtener fuente_id
       const fuente_id = fuente ? await obtenerOCrearFuente(fuente) : null
 
-      // 4. Insertar comentario
+      // 5. Insertar comentario
       if (proveedor_id) {
         const { error: insertError } = await supabaseAdmin.from('comentarios').insert({
           proveedor_id,
@@ -139,7 +141,7 @@ export async function POST(request) {
 
         if (insertError) throw new Error(insertError.message)
         resumen.insertados++
-        resumen.detalles.push({ proveedor: analisis.proveedor, sentimiento: analisis.sentimiento, status: 'insertado' })
+        resumen.detalles.push({ proveedor: analisis.proveedor ?? proveedor_id, sentimiento: analisis.sentimiento, status: 'insertado' })
       } else {
         resumen.sin_match++
         resumen.detalles.push({ texto: texto.slice(0, 60), status: 'sin_proveedor_detectado' })
