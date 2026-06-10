@@ -15,9 +15,31 @@ const outfit = Outfit({
   weight: ["300", "400", "500"],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bodaregia.com'
+
 export const metadata: Metadata = {
-  title: "BodaRegia — Proveedores de bodas en Monterrey",
-  description: "El ranking más honesto de proveedores nupciales de Nuevo León. Sin reseñas pagadas, sin publicidad disfrazada.",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: 'BodaRegia — Proveedores de bodas en Monterrey, NL',
+    template: '%s | BodaRegia',
+  },
+  description: 'El ranking más honesto de proveedores nupciales de Nuevo León. Fotógrafos, salones, floristas y más.',
+  alternates: { canonical: BASE_URL },
+  openGraph: {
+    type: 'website',
+    locale: 'es_MX',
+    url: BASE_URL,
+    siteName: 'BodaRegia',
+    title: 'BodaRegia — Proveedores de bodas en Monterrey, NL',
+    description: 'El ranking más honesto de proveedores nupciales de Nuevo León. Fotógrafos, salones, floristas y más.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'BodaRegia' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BodaRegia — Proveedores de bodas en Monterrey, NL',
+    description: 'El ranking más honesto de proveedores nupciales de Nuevo León.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({

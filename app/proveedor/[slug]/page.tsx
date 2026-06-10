@@ -1,7 +1,33 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default async function ProveedorPage({ params }: { params: Promise<{ slug: string }> }) {
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bodaregia.com'
+
+type Props = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const { data: proveedor } = await supabase
+    .from('proveedores')
+    .select('nombre, municipio')
+    .eq('slug', slug)
+    .single()
+
+  if (!proveedor) return {}
+
+  const title = `${proveedor.nombre} — Reseñas y opiniones`
+  const description = `Lee reseñas verificadas de ${proveedor.nombre}${proveedor.municipio ? `, ${proveedor.municipio}` : ''}. Opiniones reales de novias en BodaRegia.`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/proveedor/${slug}` },
+    openGraph: { title, description, url: `/proveedor/${slug}` },
+  }
+}
+
+export default async function ProveedorPage({ params }: Props) {
   const { slug } = await params
 
   const [{ data: proveedor }, ] = await Promise.all([
@@ -266,6 +292,35 @@ export default async function ProveedorPage({ params }: { params: Promise<{ slug
         <p style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold)', fontSize: 20, marginBottom: 8, fontWeight: 600 }}>BodaRegia</p>
         <p>© {new Date().getFullYear()} BodaRegia · Monterrey, México</p>
       </footer>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'LocalBusiness',
+          name: proveedor.nombre,
+          url: `${BASE_URL}/proveedor/${proveedor.slug}`,
+          ...(proveedor.municipio && {
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: proveedor.municipio,
+              addressRegion: 'Nuevo León',
+              addressCountry: 'MX',
+            },
+          }),
+          ...(proveedor.telefono && { telephone: proveedor.telefono }),
+          ...(proveedor.instagram_url && { sameAs: [proveedor.instagram_url] }),
+          ...(score && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: score.score_total?.toFixed(1),
+              bestRating: '10',
+              worstRating: '0',
+              reviewCount: score.total_menciones ?? 0,
+            },
+          }),
+        })}}
+      />
     </div>
   )
 }

@@ -1,7 +1,31 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default async function CategoriaPage({ params }: { params: Promise<{ slug: string }> }) {
+type Props = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const { data: categoria } = await supabase
+    .from('categorias')
+    .select('nombre')
+    .eq('slug', slug)
+    .single()
+
+  if (!categoria) return {}
+
+  const title = `${categoria.nombre} para bodas en Monterrey`
+  const description = `Los mejores ${categoria.nombre.toLowerCase()} para bodas en Monterrey y Nuevo León. Ranking honesto basado en reseñas reales.`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/categoria/${slug}` },
+    openGraph: { title, description, url: `/categoria/${slug}` },
+  }
+}
+
+export default async function CategoriaPage({ params }: Props) {
   const { slug } = await params
 
   // Categoria
