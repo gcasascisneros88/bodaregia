@@ -108,7 +108,37 @@ GEMINI_API_KEY=
 RESEND_API_KEY=
 APIFY_TOKEN=
 N8N_WEBHOOK_URL=
+FACEBOOK_COOKIES=       # opcional — ver instrucciones abajo
 ```
+
+### Configurar cookies de Facebook para scraping
+
+Sin cookies, Apify solo puede acceder a grupos públicos con visibilidad limitada. Con cookies de una cuenta real se obtiene acceso completo.
+
+**Cómo obtener las cookies desde Chrome/Edge:**
+
+1. Inicia sesión en [facebook.com](https://facebook.com) con la cuenta que usarás para scraping (recomendado: cuenta secundaria dedicada).
+2. Abre DevTools → `F12` → pestaña **Application** → **Cookies** → `https://www.facebook.com`.
+3. Copia los valores de las cookies clave: `c_user`, `xs`, `datr`, `fr`, `sb`.
+4. Construye el JSON con este formato:
+
+```json
+[
+  { "name": "c_user", "value": "TU_USER_ID" },
+  { "name": "xs",     "value": "TU_XS" },
+  { "name": "datr",   "value": "TU_DATR" },
+  { "name": "fr",     "value": "TU_FR" },
+  { "name": "sb",     "value": "TU_SB" }
+]
+```
+
+5. Minifica el JSON en una sola línea y asígnalo a `FACEBOOK_COOKIES` en `.env.local`:
+
+```env
+FACEBOOK_COOKIES=[{"name":"c_user","value":"123456"},{"name":"xs","value":"abc..."}]
+```
+
+> **Nota:** Las cookies expiran periódicamente. Si el scraping deja de funcionar, repite el proceso. Usa siempre una cuenta secundaria — nunca la cuenta principal.
 
 ---
 
