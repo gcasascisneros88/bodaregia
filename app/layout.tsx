@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     description: 'El ranking más honesto de proveedores nupciales de Nuevo León.',
     images: ['/og-image.png'],
   },
+  verification: {
+    google: 'google012a511e45590322',
+  },
 };
 
 export default function RootLayout({
